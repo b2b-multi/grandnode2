@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
@@ -16,7 +17,7 @@ public class PasswordRecoveryValidator : BaseGrandValidator<PasswordRecoveryMode
         IEnumerable<IValidatorConsumer<PasswordRecoveryModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         ICustomerService customerService, CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor httpContextAccessor, IContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
     {
@@ -25,7 +26,7 @@ public class PasswordRecoveryValidator : BaseGrandValidator<PasswordRecoveryMode
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            var customer = await customerService.GetCustomerByEmail(x.Email);
+            var customer = await customerService.GetCustomerByEmail(x.Email, contextAccessor.StoreContext.CurrentStore);
 
             switch (customer)
             {
@@ -48,7 +49,7 @@ public class PasswordRecoveryValidator : BaseGrandValidator<PasswordRecoveryMode
         {
             RuleFor(x => x.Captcha).NotNull().WithMessage(translationService.GetResource("Account.Captcha.Required"));
             RuleFor(x => x.Captcha)
-                .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
+                .SetValidator(new CaptchaValidator(validatorsCaptcha, httpContextAccessor, googleReCaptchaValidator));
         }
     }
 }

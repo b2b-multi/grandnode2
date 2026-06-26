@@ -75,8 +75,8 @@ public abstract class BaseLoginController : BaseController
                 case CustomerLoginResults.Successful:
                     {
                         var customer = _customerSettings.UsernamesEnabled
-                            ? await _customerService.GetCustomerByUsername(model.Username)
-                            : await _customerService.GetCustomerByEmail(model.Email);
+                            ? await _customerService.GetCustomerByUsername(model.Username, _contextAccessor.StoreContext.CurrentStore)
+                            : await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore);
                         //sign in
                         return await SignInAction(customer, model.RememberMe);
                     }
@@ -118,8 +118,8 @@ public abstract class BaseLoginController : BaseController
             return RedirectToRoute($"{GetCurrentArea()}Login");
 
         var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsername(username)
-            : await _customerService.GetCustomerByEmail(username);
+            ? await _customerService.GetCustomerByUsername(username, _contextAccessor.StoreContext.CurrentStore)
+            : await _customerService.GetCustomerByEmail(username, _contextAccessor.StoreContext.CurrentStore);
         if (customer == null)
             return RedirectToRoute($"{GetCurrentArea()}Login");
 
@@ -150,8 +150,8 @@ public abstract class BaseLoginController : BaseController
             return RedirectToRoute("HomePage");
 
         var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsername(username)
-            : await _customerService.GetCustomerByEmail(username);
+            ? await _customerService.GetCustomerByUsername(username, _contextAccessor.StoreContext.CurrentStore)
+            : await _customerService.GetCustomerByEmail(username, _contextAccessor.StoreContext.CurrentStore);
         if (customer == null)
             return RedirectToRoute($"{GetCurrentArea()}Login");
 

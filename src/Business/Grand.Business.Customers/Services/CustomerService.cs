@@ -6,6 +6,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
+using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -223,10 +224,11 @@ public class CustomerService : ICustomerService
     ///     Get customer by email
     /// </summary>
     /// <param name="email">Email</param>
+    /// <param name="store">Store</param>
     /// <returns>Customer</returns>
-    public virtual Task<Customer> GetCustomerByEmail(string email)
+    public virtual Task<Customer> GetCustomerByEmail(string email, Store store)
     {
-        return string.IsNullOrWhiteSpace(email) ? Task.FromResult<Customer>(null) : _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant());
+        return string.IsNullOrWhiteSpace(email) ? Task.FromResult<Customer>(null) : _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant() && x.StoreId == store.Id);
     }
 
     /// <summary>
@@ -248,13 +250,14 @@ public class CustomerService : ICustomerService
     ///     Get customer by username
     /// </summary>
     /// <param name="username">Username</param>
+    /// <param name="store">Store</param>
     /// <returns>Customer</returns>
-    public virtual Task<Customer> GetCustomerByUsername(string username)
+    public virtual Task<Customer> GetCustomerByUsername(string username, Store store)
     {
         if (string.IsNullOrWhiteSpace(username))
             return Task.FromResult<Customer>(null);
 
-        return _customerRepository.GetOneAsync(x => x.Username == username.ToLowerInvariant());
+        return _customerRepository.GetOneAsync(x => x.Username == username.ToLowerInvariant() && x.StoreId == store.Id);
     }
 
     /// <summary>

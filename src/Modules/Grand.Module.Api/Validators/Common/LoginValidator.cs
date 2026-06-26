@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Common;
@@ -13,7 +14,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
     public LoginValidator(
         IEnumerable<IValidatorConsumer<LoginModel>> validators,
         BackendAPIConfig apiConfig, ICustomerService customerService, IUserApiService userApiService,
-        IEncryptionService encryptionService)
+        IEncryptionService encryptionService, IContextAccessor contextAccessor)
         : base(validators)
     {
         if (!apiConfig.Enabled)
@@ -41,7 +42,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         {
             if (!string.IsNullOrEmpty(x.Email))
             {
-                var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant());
+                var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant(), contextAccessor.StoreContext.CurrentStore);
                 if (customer is { Active: true } && !customer.IsSystemAccount())
                     return true;
             }

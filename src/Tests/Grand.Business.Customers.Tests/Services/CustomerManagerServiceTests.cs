@@ -4,6 +4,8 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Business.Customers.Services;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
+using Grand.Infrastructure;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -34,8 +36,12 @@ public class CustomerManagerServiceTests
             AllowUsersToChangeUsernames = true
         };
 
+        var contextAccessorMock = new Mock<IContextAccessor>();
+        var storeContextMock = new Mock<IStoreContext>();
+        storeContextMock.Setup(c => c.CurrentStore).Returns(new Store { Id = "" });
+        contextAccessorMock.Setup(c => c.StoreContext).Returns(storeContextMock.Object);
         _customerManagerService = new CustomerManagerService(_customerServiceMock.Object, _groupServiceMock.Object,
-            _encryptionServiceMock.Object, _mediatorMock.Object, _customerHistoryPasswordServiceMock.Object, _customerSettings);
+            _encryptionServiceMock.Object, _mediatorMock.Object, _customerHistoryPasswordServiceMock.Object, _customerSettings, contextAccessorMock.Object);
     }
 
     [TestMethod]
@@ -43,7 +49,7 @@ public class CustomerManagerServiceTests
     {
         //Arrange
         var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "12345" };
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(customer));
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
         //Act
@@ -57,7 +63,7 @@ public class CustomerManagerServiceTests
     {
         //Arrange
         var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(customer));
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
         //Act
@@ -71,7 +77,7 @@ public class CustomerManagerServiceTests
     {
         //Arrange
         var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(customer));
 
         var changepassword = new ChangePasswordRequest("admin@admin.com",

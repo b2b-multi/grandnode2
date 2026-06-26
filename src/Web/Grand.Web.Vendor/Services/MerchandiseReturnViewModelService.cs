@@ -139,7 +139,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
         var customerId = string.Empty;
         if (!string.IsNullOrEmpty(model.SearchCustomerEmail))
         {
-            var customer = await _customerService.GetCustomerByEmail(model.SearchCustomerEmail);
+            var customer = await _customerService.GetCustomerByEmail(model.SearchCustomerEmail, _contextAccessor.StoreContext.CurrentStore);
             customerId = customer != null ? customer.Id : "00000000-0000-0000-0000-000000000000";
         }
 

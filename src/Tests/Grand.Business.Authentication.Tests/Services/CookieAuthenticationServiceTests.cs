@@ -3,6 +3,8 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +27,7 @@ public class CookieAuthenticationServiceTests
     private DefaultHttpContext _httpContext;
     private Mock<IServiceProvider> serviceProviderMock;
     private CookieOptionsFactory _cookieOptionsFactory;
+    private Mock<IContextAccessor> _contextAccessorMock;
 
     [TestInitialize]
     public void Init()
@@ -39,8 +42,12 @@ public class CookieAuthenticationServiceTests
             CookiePrefix = ".Grand."
         };
         _cookieOptionsFactory = new CookieOptionsFactory(_config);
+        _contextAccessorMock = new Mock<IContextAccessor>();
+        var storeContextMock = new Mock<IStoreContext>();
+        storeContextMock.Setup(c => c.CurrentStore).Returns(new Store { Id = "" });
+        _contextAccessorMock.Setup(c => c.StoreContext).Returns(storeContextMock.Object);
         _cookieAuthService = new CookieAuthenticationService(_customerSettings, _customerServiceMock.Object,
-            _groupServiceMock.Object, _httpAccessorMock.Object, _cookieOptionsFactory, _config);
+            _groupServiceMock.Object, _httpAccessorMock.Object, _cookieOptionsFactory, _config, _contextAccessorMock.Object);
         //For mock HttpContext extension methods like SignOutAsync ,SignInAsync etc..
         _authServiceMock = new Mock<IAuthenticationService>();
         serviceProviderMock = new Mock<IServiceProvider>();
@@ -105,7 +112,7 @@ public class CookieAuthenticationServiceTests
             new ClaimsPrincipal(new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme));
         _authServiceMock.Setup(c => c.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
             .Returns(() => Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principals, ""))));
-        _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(expectedCustomer));
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
 
@@ -126,7 +133,7 @@ public class CookieAuthenticationServiceTests
             new ClaimsPrincipal(new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme));
         _authServiceMock.Setup(c => c.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
             .Returns(() => Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principals, ""))));
-        _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(expectedCustomer));
         //guest
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(false));

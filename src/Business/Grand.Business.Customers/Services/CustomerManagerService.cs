@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MediatR;
@@ -33,7 +34,8 @@ public class CustomerManagerService : ICustomerManagerService
         IEncryptionService encryptionService,
         IMediator mediator,
         ICustomerHistoryPasswordService customerHistoryPasswordService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        IContextAccessor contextAccessor)
     {
         _customerService = customerService;
         _groupService = groupService;
@@ -41,6 +43,7 @@ public class CustomerManagerService : ICustomerManagerService
         _mediator = mediator;
         _customerHistoryPasswordService = customerHistoryPasswordService;
         _customerSettings = customerSettings;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -53,6 +56,7 @@ public class CustomerManagerService : ICustomerManagerService
     private readonly IMediator _mediator;
     private readonly ICustomerHistoryPasswordService _customerHistoryPasswordService;
     private readonly CustomerSettings _customerSettings;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 
@@ -81,8 +85,8 @@ public class CustomerManagerService : ICustomerManagerService
     public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password)
     {
         var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsername(usernameOrEmail)
-            : await _customerService.GetCustomerByEmail(usernameOrEmail);
+            ? await _customerService.GetCustomerByUsername(usernameOrEmail, _contextAccessor.StoreContext.CurrentStore)
+            : await _customerService.GetCustomerByEmail(usernameOrEmail, _contextAccessor.StoreContext.CurrentStore);
 
         var pwd = customer.PasswordFormatId switch {
             PasswordFormat.Clear => password,
@@ -172,7 +176,7 @@ public class CustomerManagerService : ICustomerManagerService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var customer = await _customerService.GetCustomerByEmail(request.Email);
+        var customer = await _customerService.GetCustomerByEmail(request.Email, _contextAccessor.StoreContext.CurrentStore);
         ArgumentNullException.ThrowIfNull(customer);
 
         switch (request.PasswordFormat)

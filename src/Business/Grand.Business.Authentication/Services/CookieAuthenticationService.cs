@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +33,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         IGroupService groupService,
         IHttpContextAccessor httpContextAccessor,
         ICookieOptionsFactory cookieOptionsFactory,
-        SecurityConfig securityConfig)
+        SecurityConfig securityConfig,
+        IContextAccessor contextAccessor)
     {
         _customerSettings = customerSettings;
         _customerService = customerService;
@@ -40,6 +42,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         _httpContextAccessor = httpContextAccessor;
         _cookieOptionsFactory = cookieOptionsFactory;
         _securityConfig = securityConfig;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -57,6 +60,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private readonly IGroupService _groupService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICookieOptionsFactory _cookieOptionsFactory;
+    private readonly IContextAccessor _contextAccessor;
 
     private readonly SecurityConfig _securityConfig;
 
@@ -162,7 +166,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
                 ?.Value;
 
             if (!string.IsNullOrEmpty(username))
-                return await _customerService.GetCustomerByUsername(username);
+                return await _customerService.GetCustomerByUsername(username, _contextAccessor.StoreContext.CurrentStore);
         }
         else
         {
@@ -172,7 +176,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
                 ?.Value;
 
             if (!string.IsNullOrEmpty(email))
-                return await _customerService.GetCustomerByEmail(email);
+                return await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore);
         }
 
         return null;

@@ -3,6 +3,8 @@ using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
+using Grand.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +23,7 @@ public class ApiAuthenticationServiceTests
     private Mock<IHttpContextAccessor> _httpContextAccessorMoc;
     private IJwtBearerAuthenticationService _jwtBearerAuthenticationService;
     private Mock<IUserApiService> _userApiServiceMock;
+    private Mock<IContextAccessor> _contextAccessorMock;
 
     [TestInitialize]
     public void Init()
@@ -29,10 +32,14 @@ public class ApiAuthenticationServiceTests
         _customerService = new Mock<ICustomerService>();
         _userApiServiceMock = new Mock<IUserApiService>();
         _groupService = new Mock<IGroupService>();
+        _contextAccessorMock = new Mock<IContextAccessor>();
+        var storeContextMock = new Mock<IStoreContext>();
+        storeContextMock.Setup(c => c.CurrentStore).Returns(new Store { Id = "" });
+        _contextAccessorMock.Setup(c => c.StoreContext).Returns(storeContextMock.Object);
         _authService = new ApiAuthenticationService(_customerService.Object, _groupService.Object,
-            _httpContextAccessorMoc.Object);
+            _httpContextAccessorMoc.Object, _contextAccessorMock.Object);
         _jwtBearerAuthenticationService =
-            new JwtBearerAuthenticationService(_customerService.Object, _userApiServiceMock.Object);
+            new JwtBearerAuthenticationService(_customerService.Object, _userApiServiceMock.Object, _contextAccessorMock.Object);
     }
 
     [TestMethod]
@@ -77,7 +84,7 @@ public class ApiAuthenticationServiceTests
             new("Token", "123")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult<Customer>(null));
         var result = await _jwtBearerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
@@ -96,7 +103,7 @@ public class ApiAuthenticationServiceTests
             new("Token", "123")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(new Customer { Active = false }));
         var result = await _jwtBearerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
@@ -115,7 +122,7 @@ public class ApiAuthenticationServiceTests
             new("Token", "123")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(new Customer { Active = true }));
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult(new UserApi { IsActive = false, Token = "123" }));
@@ -136,7 +143,7 @@ public class ApiAuthenticationServiceTests
             new("Token", "123")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(new Customer { Active = true }));
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "321" }));
@@ -156,7 +163,7 @@ public class ApiAuthenticationServiceTests
             new("Token", "123")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(new Customer { Active = true }));
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "123" }));

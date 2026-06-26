@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grand.Business.Authentication.Services;
@@ -15,15 +16,18 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
     private readonly IGroupService _groupService;
     private readonly IPermissionService _permissionService;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IContextAccessor _contextAccessor;
     private string _errorMessage;
 
     public JwtBearerCustomerAuthenticationService(ICustomerService customerService,
-        IPermissionService permissionService, IGroupService groupService, IRefreshTokenService refreshTokenService)
+        IPermissionService permissionService, IGroupService groupService, IRefreshTokenService refreshTokenService,
+        IContextAccessor contextAccessor)
     {
         _customerService = customerService;
         _permissionService = permissionService;
         _groupService = groupService;
         _refreshTokenService = refreshTokenService;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<bool> Valid(TokenValidatedContext context)
@@ -41,7 +45,7 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
         }
         else
         {
-            customer = await _customerService.GetCustomerByEmail(email);
+            customer = await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore);
         }
 
         if (customer is null)

@@ -182,21 +182,21 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                             context.AddFailure(
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                        var customerByEmail = await customerService.GetCustomerByEmail(x.Email);
+                        var customerByEmail = await customerService.GetCustomerByEmail(x.Email, contextAccessor.StoreContext.CurrentStore);
                         if (customerByEmail != null)
                             context.AddFailure("Email is already registered");
                     }
 
                     if (!string.IsNullOrWhiteSpace(x.Owner))
                     {
-                        var customerOwner = await customerService.GetCustomerByEmail(x.Owner);
+                        var customerOwner = await customerService.GetCustomerByEmail(x.Owner, contextAccessor.StoreContext.CurrentStore);
                         if (customerOwner == null)
                             context.AddFailure("Owner email is not exists");
                     }
 
                     if (!string.IsNullOrWhiteSpace(x.Username) && customerSettings.UsernamesEnabled)
                     {
-                        var customerByUsername = await customerService.GetCustomerByUsername(x.Username);
+                        var customerByUsername = await customerService.GetCustomerByUsername(x.Username, contextAccessor.StoreContext.CurrentStore);
                         if (customerByUsername != null)
                             context.AddFailure("Username is already registered");
 
@@ -230,7 +230,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
 
                     if (!string.IsNullOrWhiteSpace(x.Owner))
                     {
-                        var customerByOwner = await customerService.GetCustomerByEmail(x.Owner);
+                        var customerByOwner = await customerService.GetCustomerByEmail(x.Owner, contextAccessor.StoreContext.CurrentStore);
                         if (customerByOwner == null)
                             context.AddFailure("Owner email is not exists");
 
@@ -253,7 +253,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                             context.AddFailure(
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                        var customer2 = await customerService.GetCustomerByEmail(x.Email);
+                        var customer2 = await customerService.GetCustomerByEmail(x.Email, contextAccessor.StoreContext.CurrentStore);
                         if (customer2 != null && customer.Id != customer2.Id)
                             context.AddFailure(
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
@@ -264,7 +264,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                         if (x.Username.Length > 100)
                             context.AddFailure("Username is too long");
 
-                        var user2 = await customerService.GetCustomerByUsername(x.Username);
+                        var user2 = await customerService.GetCustomerByUsername(x.Username, contextAccessor.StoreContext.CurrentStore);
                         if (user2 != null && customer.Id != user2.Id)
                             context.AddFailure("The username is already in use");
                     }

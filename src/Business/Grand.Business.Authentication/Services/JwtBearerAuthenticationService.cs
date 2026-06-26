@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grand.Business.Authentication.Services;
@@ -8,15 +9,18 @@ public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService
 {
     private readonly ICustomerService _customerService;
     private readonly IUserApiService _userApiService;
+    private readonly IContextAccessor _contextAccessor;
     private string _email;
 
     private string _errorMessage;
 
     public JwtBearerAuthenticationService(
-        ICustomerService customerService, IUserApiService userApiService)
+        ICustomerService customerService, IUserApiService userApiService,
+        IContextAccessor contextAccessor)
     {
         _customerService = customerService;
         _userApiService = userApiService;
+        _contextAccessor = contextAccessor;
     }
 
     /// <summary>
@@ -41,7 +45,7 @@ public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService
             return await Task.FromResult(false);
         }
 
-        var customer = await _customerService.GetCustomerByEmail(_email);
+        var customer = await _customerService.GetCustomerByEmail(_email, _contextAccessor.StoreContext.CurrentStore);
         if (customer is not { Active: true } || customer.Deleted)
         {
             _errorMessage = "Email not exists/or not active in the customer table";

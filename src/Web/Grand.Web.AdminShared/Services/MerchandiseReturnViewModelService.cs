@@ -11,6 +11,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
+using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
@@ -36,7 +37,7 @@ public class MerchandiseReturnViewModelService(
     IAddressAttributeParser addressAttributeParser,
     IDownloadService downloadService,
     OrderSettings orderSettings,
-    IEnumTranslationService enumTranslationService)
+    IEnumTranslationService enumTranslationService, IContextAccessor contextAccessor)
     : IMerchandiseReturnViewModelService
 {
     public virtual async Task<MerchandiseReturnModel> PrepareMerchandiseReturnModel(MerchandiseReturnModel model,
@@ -94,7 +95,7 @@ public class MerchandiseReturnViewModelService(
         var customerId = string.Empty;
         if (!string.IsNullOrEmpty(model.SearchCustomerEmail))
         {
-            var customer = await customerService.GetCustomerByEmail(model.SearchCustomerEmail.ToLowerInvariant());
+            var customer = await customerService.GetCustomerByEmail(model.SearchCustomerEmail.ToLowerInvariant(), contextAccessor.StoreContext.CurrentStore);
             customerId = customer != null ? customer.Id : "00000000-0000-0000-0000-000000000000";
         }
 

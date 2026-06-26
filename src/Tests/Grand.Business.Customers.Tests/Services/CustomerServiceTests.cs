@@ -5,6 +5,7 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
@@ -104,9 +105,10 @@ public class CustomerServiceTests
     {
         //Assert
         var email = "email@email.com";
-        await _repository.InsertAsync(new Customer { Email = email });
+        var store = new Store { Id = "" };
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = store.Id });
         //Act
-        var result = await _customerService.GetCustomerByEmail(email);
+        var result = await _customerService.GetCustomerByEmail(email, store);
         //Assert
         Assert.IsNotNull(result);
     }
@@ -128,9 +130,10 @@ public class CustomerServiceTests
     {
         //Assert
         var userName = "user";
-        await _repository.InsertAsync(new Customer { Username = userName });
+        var store = new Store { Id = "" };
+        await _repository.InsertAsync(new Customer { Username = userName, StoreId = store.Id });
         //Act
-        var result = await _customerService.GetCustomerByUsername(userName);
+        var result = await _customerService.GetCustomerByUsername(userName, store);
         //Assert
         Assert.IsNotNull(result);
     }

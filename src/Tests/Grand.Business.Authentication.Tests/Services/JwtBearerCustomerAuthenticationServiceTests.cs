@@ -5,6 +5,8 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
 using Grand.Domain.Common;
+using Grand.Domain.Stores;
+using Grand.Infrastructure;
 using Grand.Domain.Customers;
 using Grand.Domain.Security;
 using Microsoft.AspNetCore.Authentication;
@@ -26,6 +28,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
     private IJwtBearerCustomerAuthenticationService _jwtBearerCustomerAuthenticationService;
     private Mock<IPermissionService> _permissionServiceMock;
     private Mock<IRefreshTokenService> _refreshTokenServiceMock;
+    private Mock<IContextAccessor> _contextAccessorMock;
 
     [TestInitialize]
     public void Init()
@@ -35,9 +38,13 @@ public class JwtBearerCustomerAuthenticationServiceTests
         _permissionServiceMock = new Mock<IPermissionService>();
         _httpContextMock = new Mock<HttpContext>();
         _refreshTokenServiceMock = new Mock<IRefreshTokenService>();
+        _contextAccessorMock = new Mock<IContextAccessor>();
+        var storeContextMock = new Mock<IStoreContext>();
+        storeContextMock.Setup(c => c.CurrentStore).Returns(new Store { Id = "" });
+        _contextAccessorMock.Setup(c => c.StoreContext).Returns(storeContextMock.Object);
         _jwtBearerCustomerAuthenticationService = new JwtBearerCustomerAuthenticationService(
             _customerServiceMock.Object, _permissionServiceMock.Object, _groupService.Object,
-            _refreshTokenServiceMock.Object);
+            _refreshTokenServiceMock.Object, _contextAccessorMock.Object);
     }
 
     [TestMethod]
@@ -61,7 +68,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
     public async Task Valid_NullToken_ReturnFalse()
     {
         var expectedCustomer = new Customer { Username = "John", Active = true };
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(expectedCustomer));
 
         var httpContext = new Mock<HttpContext>();
@@ -82,7 +89,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
     public async Task Valid_NotActiveCustomer_ReturnFalse()
     {
         var expectedCustomer = new Customer { Username = "John", Active = true };
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(expectedCustomer));
 
         var httpContext = new Mock<HttpContext>();
@@ -93,7 +100,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
             new("Token", "123")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(new Customer { Active = false }));
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
@@ -105,7 +112,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
     public async Task Valid_NoPermissions_Customer_ReturnFalse()
     {
         var customer = new Customer { Username = "John", Active = true };
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(customer));
         _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).Returns(() =>
             Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));
@@ -133,7 +140,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         var customer = new Customer { Username = "John", Active = true };
         customer.UserFields.Add(new UserField
             { Key = SystemCustomerFieldNames.PasswordToken, Value = "123", StoreId = "" });
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<Store>()))
             .Returns(() => Task.FromResult(customer));
         _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).Returns(() =>
             Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));

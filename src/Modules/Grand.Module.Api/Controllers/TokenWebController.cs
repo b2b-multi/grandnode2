@@ -80,7 +80,7 @@ public class TokenWebController : ControllerBase
 
         try
         {
-            var customer = await _customerService.GetCustomerByEmail(model.Email);
+            var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore);
             var claims = new Dictionary<string, string> {
                 { "Email", model.Email }, 
                 { "Token", customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken) }
@@ -118,7 +118,7 @@ public class TokenWebController : ControllerBase
 
         if (!string.IsNullOrEmpty(email))
         {
-            customer = await _customerService.GetCustomerByEmail(email);
+            customer = await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore);
             claims.Add("Email", email);
             claims.Add("Token", customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken));
         }

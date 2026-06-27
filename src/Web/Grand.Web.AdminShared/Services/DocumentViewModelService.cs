@@ -10,6 +10,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Documents;
 using Grand.Domain.Payments;
+using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Documents;
@@ -32,6 +33,7 @@ public class DocumentViewModelService : IDocumentViewModelService
     private readonly IShipmentService _shipmentService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
+    private readonly IContextAccessor _contextAccessor;
 
     public DocumentViewModelService(
         IDocumentService documentService,
@@ -46,6 +48,7 @@ public class DocumentViewModelService : IDocumentViewModelService
         ICollectionService collectionService,
         IVendorService vendorService,
         ISalesEmployeeService salesEmployeeService,
+        IContextAccessor contextAccessor,
         IDownloadService downloadService)
     {
         _documentService = documentService;
@@ -61,6 +64,7 @@ public class DocumentViewModelService : IDocumentViewModelService
         _vendorService = vendorService;
         _salesEmployeeService = salesEmployeeService;
         _downloadService = downloadService;
+        _contextAccessor = contextAccessor;
     }
 
     public virtual async Task<(IEnumerable<DocumentModel> documetListModel, int totalCount)> PrepareDocumentListModel(
@@ -221,7 +225,7 @@ public class DocumentViewModelService : IDocumentViewModelService
     public virtual async Task<Document> InsertDocument(DocumentModel model)
     {
         model.CustomerId = !string.IsNullOrEmpty(model.CustomerEmail)
-            ? (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id
+            ? (await _customerService.GetCustomerByEmail(model.CustomerEmail, _contextAccessor.StoreContext.CurrentStore))?.Id
             : string.Empty;
 
         var document = model.ToEntity();
@@ -236,7 +240,7 @@ public class DocumentViewModelService : IDocumentViewModelService
         if (!string.IsNullOrEmpty(model.CustomerEmail))
         {
             model.CustomerEmail = model.CustomerEmail.ToLowerInvariant();
-            model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
+            model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail, _contextAccessor.StoreContext.CurrentStore))?.Id;
         }
         else
         {

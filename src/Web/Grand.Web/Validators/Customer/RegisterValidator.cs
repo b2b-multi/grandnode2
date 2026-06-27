@@ -142,14 +142,14 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
 
 
             //validate unique user
-            if (await customerService.GetCustomerByEmail(x.Email) != null)
+            if (await customerService.GetCustomerByEmail(x.Email, contextAccessor.StoreContext.CurrentStore) != null)
             {
                 context.AddFailure(translationService.GetResource("Account.Register.Errors.EmailAlreadyExists"));
                 return;
             }
 
             if (customerSettings.UsernamesEnabled)
-                if (await customerService.GetCustomerByUsername(x.Username) != null)
+                if (await customerService.GetCustomerByUsername(x.Username, contextAccessor.StoreContext.CurrentStore) != null)
                     context.AddFailure(translationService.GetResource("Account.Register.Errors.UsernameAlreadyExists"));
         });
     }

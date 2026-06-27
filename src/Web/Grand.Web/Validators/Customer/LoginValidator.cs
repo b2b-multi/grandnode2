@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
@@ -22,7 +23,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         ICustomerService customerService, IGroupService groupService, IEncryptionService encryptionService,
         ITranslationService translationService, CustomerSettings customerSettings, CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator)
+        IHttpContextAccessor httpContextAccessor, IContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator)
         : base(validators)
     {
         if (!customerSettings.UsernamesEnabled)
@@ -44,8 +45,8 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var customer = customerSettings.UsernamesEnabled
-                ? await customerService.GetCustomerByUsername(x.Username)
-                : await customerService.GetCustomerByEmail(x.Email);
+                ? await customerService.GetCustomerByUsername(x.Username, contextAccessor.StoreContext.CurrentStore)
+                : await customerService.GetCustomerByEmail(x.Email, contextAccessor.StoreContext.CurrentStore);
 
             switch (customer)
             {
@@ -79,7 +80,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                         if (!isValid)
                         {
                             context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
-                            await contextAccessor.HttpContext!.RequestServices.GetRequiredService<IMediator>()
+                            await httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IMediator>()
                                 .Publish(new CustomerLoginFailedEvent(customer), _);
                         }
 
@@ -92,7 +93,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         {
             RuleFor(x => x.Captcha).NotNull().WithMessage(translationService.GetResource("Account.Captcha.Required"));
             RuleFor(x => x.Captcha)
-                .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
+                .SetValidator(new CaptchaValidator(validatorsCaptcha, httpContextAccessor, googleReCaptchaValidator));
         }
     }
 }

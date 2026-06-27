@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Customer;
 
@@ -13,7 +14,8 @@ public class SubAccountCreateValidator : BaseGrandValidator<SubAccountCreateMode
         IEnumerable<IValidatorConsumer<SubAccountCreateModel>> validators,
         ICustomerService customerService,
         ITranslationService translationService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        IContextAccessor contextAccessor)
         : base(validators)
     {
         RuleFor(x => x.Email).NotEmpty()
@@ -34,7 +36,7 @@ public class SubAccountCreateValidator : BaseGrandValidator<SubAccountCreateMode
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            var customer = await customerService.GetCustomerByEmail(x.Email);
+            var customer = await customerService.GetCustomerByEmail(x.Email, contextAccessor.StoreContext.CurrentStore);
             if (customer != null)
                 context.AddFailure(
                     translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));

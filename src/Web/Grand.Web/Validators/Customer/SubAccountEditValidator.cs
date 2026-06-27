@@ -66,7 +66,7 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
                 if (x.Email.Length > 100)
                     context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                var customer2 = await customerService.GetCustomerByEmail(x.Email);
+                var customer2 = await customerService.GetCustomerByEmail(x.Email, contextAccessor.StoreContext.CurrentStore);
                 if (customer2 != null && customer.Id != customer2.Id)
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));

@@ -1,5 +1,6 @@
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Interfaces.Customers;
 
@@ -13,8 +14,9 @@ public interface ICustomerManagerService
     /// </summary>
     /// <param name="usernameOrEmail">Username or email</param>
     /// <param name="password">Password</param>
+    /// <param name="store">Store</param>
     /// <returns>Result</returns>
-    Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password);
+    Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, Store store);
 
     /// <summary>
     ///     Register customer
@@ -36,5 +38,13 @@ public interface ICustomerManagerService
     ///     Change password
     /// </summary>
     /// <param name="request">Request</param>
-    Task ChangePassword(ChangePasswordRequest request);
+    /// <param name="store">Store</param>
+    Task ChangePassword(ChangePasswordRequest request, Store store);
+    
+    /// <summary>
+    ///     Change password
+    /// </summary>
+    /// <param name="request">Request</param>
+    /// <param name="customer">Customer</param>
+    Task ChangePassword(ChangePasswordRequest request, Customer customer);
 }

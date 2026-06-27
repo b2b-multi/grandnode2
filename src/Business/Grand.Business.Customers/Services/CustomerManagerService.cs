@@ -5,6 +5,8 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
+using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MediatR;
@@ -33,7 +35,8 @@ public class CustomerManagerService : ICustomerManagerService
         IEncryptionService encryptionService,
         IMediator mediator,
         ICustomerHistoryPasswordService customerHistoryPasswordService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        IContextAccessor contextAccessor)
     {
         _customerService = customerService;
         _groupService = groupService;
@@ -41,6 +44,7 @@ public class CustomerManagerService : ICustomerManagerService
         _mediator = mediator;
         _customerHistoryPasswordService = customerHistoryPasswordService;
         _customerSettings = customerSettings;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -53,6 +57,7 @@ public class CustomerManagerService : ICustomerManagerService
     private readonly IMediator _mediator;
     private readonly ICustomerHistoryPasswordService _customerHistoryPasswordService;
     private readonly CustomerSettings _customerSettings;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 
@@ -77,13 +82,25 @@ public class CustomerManagerService : ICustomerManagerService
     /// </summary>
     /// <param name="usernameOrEmail">Username or email</param>
     /// <param name="password">Password</param>
+    /// <param name="store">Store</param>
     /// <returns>Result</returns>
-    public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password)
+    public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, Store store)
     {
         var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsername(usernameOrEmail)
-            : await _customerService.GetCustomerByEmail(usernameOrEmail);
+            ? await _customerService.GetCustomerByUsername(usernameOrEmail, store)
+            : await _customerService.GetCustomerByEmail(usernameOrEmail, store);
 
+        return ProcessCustomerLogin(customer, password);
+    }
+
+    /// <summary>
+    ///     Validate customer
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="password">Password</param>
+    /// <returns>Result</returns>
+    private CustomerLoginResults ProcessCustomerLogin(Customer customer, string password)
+    {
         var pwd = customer.PasswordFormatId switch {
             PasswordFormat.Clear => password,
             PasswordFormat.Encrypted => _encryptionService.EncryptText(password, customer.PasswordSalt),
@@ -168,13 +185,38 @@ public class CustomerManagerService : ICustomerManagerService
     ///     Change password
     /// </summary>
     /// <param name="request">Request</param>
-    public virtual async Task ChangePassword(ChangePasswordRequest request)
+    // public virtual async Task ChangePassword(ChangePasswordRequest request)
+    // {
+    //     ArgumentNullException.ThrowIfNull(request);
+    //
+    //     var customer = await _customerService.GetCustomerByEmail(request.Email);
+    //     ArgumentNullException.ThrowIfNull(customer);
+    //
+    //     await ChangePassword(request, customer);
+    // }
+    
+    /// <summary>
+    ///     Change password
+    /// </summary>
+    /// <param name="request">Request</param>
+    /// <param name="store">Store</param>
+    public virtual async Task ChangePassword(ChangePasswordRequest request, Store store)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var customer = await _customerService.GetCustomerByEmail(request.Email);
+        var customer = await _customerService.GetCustomerByEmail(request.Email, store);
         ArgumentNullException.ThrowIfNull(customer);
 
+        await ChangePassword(request, customer);
+    }
+    
+    /// <summary>
+    ///     Change password
+    /// </summary>
+    /// <param name="request">Request</param>
+    /// <param name="customer">Customer</param>
+    public virtual async Task ChangePassword(ChangePasswordRequest request, Customer customer)
+    {
         switch (request.PasswordFormat)
         {
             case PasswordFormat.Clear:

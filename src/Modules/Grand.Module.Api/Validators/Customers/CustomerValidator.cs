@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Customers;
@@ -14,18 +15,18 @@ public class CustomerValidator : BaseGrandValidator<CustomerDto>
     public CustomerValidator(
         IEnumerable<IValidatorConsumer<CustomerDto>> validators,
         ITranslationService translationService, ICountryService countryService,
-        ICustomerService customerService, IStoreService storeService, CustomerSettings customerSettings)
+        ICustomerService customerService, IStoreService storeService, CustomerSettings customerSettings, IContextAccessor contextAccessor)
         : base(validators)
     {
         RuleFor(x => x).MustAsync(async (x, _) =>
         {
-            var customer = await customerService.GetCustomerByEmail(x.Email);
+            var customer = await customerService.GetCustomerByEmail(x.Email, contextAccessor.StoreContext.CurrentStore);
             return customer == null || customer.Id == x.Id;
         }).WithMessage(translationService.GetResource("Api.Customers.Customer.Fields.Email.Registered"));
 
         RuleFor(x => x).MustAsync(async (x, _) =>
         {
-            var username = await customerService.GetCustomerByUsername(x.Username);
+            var username = await customerService.GetCustomerByUsername(x.Username, contextAccessor.StoreContext.CurrentStore);
             return username == null || username.Id == x.Id || !customerSettings.UsernamesEnabled;
         }).WithMessage(translationService.GetResource("Api.Customers.Customer.Fields.Username.Registered"));
 

@@ -192,14 +192,14 @@ public class AccountController : BasePublicController
         {
             var loginResult =
                 await _customerManagerService.LoginCustomer(
-                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
+                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password, _contextAccessor.StoreContext.CurrentStore);
             switch (loginResult)
             {
                 case CustomerLoginResults.Successful:
                 {
                     var customer = _customerSettings.UsernamesEnabled
-                        ? await _customerService.GetCustomerByUsername(model.Username)
-                        : await _customerService.GetCustomerByEmail(model.Email);
+                        ? await _customerService.GetCustomerByUsername(model.Username, _contextAccessor.StoreContext.CurrentStore)
+                        : await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore);
                     //sign in
                     return await SignInAction(customer, model.RememberMe, returnUrl);
                 }
@@ -230,8 +230,8 @@ public class AccountController : BasePublicController
             return RedirectToRoute("HomePage");
 
         var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsername(username)
-            : await _customerService.GetCustomerByEmail(username);
+            ? await _customerService.GetCustomerByUsername(username, _contextAccessor.StoreContext.CurrentStore)
+            : await _customerService.GetCustomerByEmail(username, _contextAccessor.StoreContext.CurrentStore);
         if (customer == null)
             return RedirectToRoute("HomePage");
 
@@ -261,8 +261,8 @@ public class AccountController : BasePublicController
             return RedirectToRoute("HomePage");
 
         var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsername(username)
-            : await _customerService.GetCustomerByEmail(username);
+            ? await _customerService.GetCustomerByUsername(username, _contextAccessor.StoreContext.CurrentStore)
+            : await _customerService.GetCustomerByEmail(username, _contextAccessor.StoreContext.CurrentStore);
         if (customer == null)
             return RedirectToRoute("Login");
 
@@ -362,7 +362,7 @@ public class AccountController : BasePublicController
     {
         if (!ModelState.IsValid) return View(model);
 
-        var customer = await _customerService.GetCustomerByEmail(model.Email);
+        var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore);
         await _mediator.Send(new PasswordRecoverySendCommand {
             Customer = customer,
             Store = _contextAccessor.StoreContext.CurrentStore,
@@ -379,7 +379,7 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     public virtual async Task<ActionResult<PasswordRecoveryConfirmModel>> PasswordRecoveryConfirm(string token, string email)
     {
-        var customer = await _customerService.GetCustomerByEmail(email);
+        var customer = await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore);
         if (customer == null)
             return RedirectToRoute("HomePage");
 
@@ -396,10 +396,10 @@ public class AccountController : BasePublicController
     {
         if (!ModelState.IsValid) return View(model);
 
-        var customer = await _customerService.GetCustomerByEmail(model.Email);
+        var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore);
 
         await _customerManagerService.ChangePassword(new ChangePasswordRequest(model.Email,
-            _customerSettings.DefaultPasswordFormat, model.NewPassword));
+            _customerSettings.DefaultPasswordFormat, model.NewPassword), _contextAccessor.StoreContext.CurrentStore);
 
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
 
@@ -577,7 +577,7 @@ public class AccountController : BasePublicController
         }
         else
         {
-            var customer = await _customerService.GetCustomerByUsername(username);
+            var customer = await _customerService.GetCustomerByUsername(username, _contextAccessor.StoreContext.CurrentStore);
             if (customer != null) return Json(new { Available = false, Text = statusText });
             statusText = _translationService.GetResource("Account.CheckUsernameAvailability.Available");
             usernameAvailable = true;
@@ -591,7 +591,7 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     public virtual async Task<IActionResult> AccountActivation(string token, string email)
     {
-        var customer = await _customerService.GetCustomerByEmail(email);
+        var customer = await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore);
         if (customer == null)
             return RedirectToRoute("HomePage");
 
@@ -927,7 +927,7 @@ public class AccountController : BasePublicController
         var changePasswordRequest = new ChangePasswordRequest(_contextAccessor.WorkContext.CurrentCustomer.Email,
             _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
 
-        await _customerManagerService.ChangePassword(changePasswordRequest);
+        await _customerManagerService.ChangePassword(changePasswordRequest, _contextAccessor.StoreContext.CurrentStore);
         var customer = await _customerService.GetCustomerById(_contextAccessor.WorkContext.CurrentCustomer.Id);
 
         //sign in

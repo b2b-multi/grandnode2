@@ -6,6 +6,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
+using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -205,7 +206,7 @@ public class CustomerService : ICustomerService
         var sortedCustomers = customerIds.Select(id => customers.FirstOrDefault(customer => customer.Id == id))
             .Where(customer => customer != null)
             .ToList();
-        
+
         return await Task.FromResult(sortedCustomers);
     }
 
@@ -223,10 +224,25 @@ public class CustomerService : ICustomerService
     ///     Get customer by email
     /// </summary>
     /// <param name="email">Email</param>
+    /// <param name="store">Store</param>
+    /// <returns>Customer</returns>
+    public virtual Task<Customer> GetCustomerByEmail(string email, Store store)
+    {
+        return string.IsNullOrWhiteSpace(email)
+            ? Task.FromResult<Customer>(null)
+            : _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant() && x.StoreId == store.Id);
+    }
+
+    /// <summary>
+    ///     Get customer by email
+    /// </summary>
+    /// <param name="email">Email</param>
     /// <returns>Customer</returns>
     public virtual Task<Customer> GetCustomerByEmail(string email)
     {
-        return string.IsNullOrWhiteSpace(email) ? Task.FromResult<Customer>(null) : _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant());
+        return string.IsNullOrWhiteSpace(email)
+            ? Task.FromResult<Customer>(null)
+            : _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant());
     }
 
     /// <summary>
@@ -255,6 +271,20 @@ public class CustomerService : ICustomerService
             return Task.FromResult<Customer>(null);
 
         return _customerRepository.GetOneAsync(x => x.Username == username.ToLowerInvariant());
+    }
+
+    /// <summary>
+    ///     Get customer by username
+    /// </summary>
+    /// <param name="username">Username</param>
+    /// <param name="store">Store</param>
+    /// <returns>Customer</returns>
+    public virtual Task<Customer> GetCustomerByUsername(string username, Store store)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            return Task.FromResult<Customer>(null);
+
+        return _customerRepository.GetOneAsync(x => x.Username == username.ToLowerInvariant() && x.StoreId == store.Id);
     }
 
     /// <summary>
@@ -365,14 +395,16 @@ public class CustomerService : ICustomerService
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
     /// <param name="storeId">Store identifier; pass "" if this attribute will be available for all stores</param>
-    public virtual async Task UpdateUserField<TPropType>(Customer customer, string key, TPropType value, string storeId = "")
+    public virtual async Task UpdateUserField<TPropType>(Customer customer, string key, TPropType value,
+        string storeId = "")
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(key);
 
         var props = customer.UserFields.Where(x => string.IsNullOrEmpty(storeId) || x.StoreId == storeId);
 
-        var prop = props.FirstOrDefault(ga => ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
+        var prop = props.FirstOrDefault(ga =>
+            ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
 
         var valueStr = CommonHelper.To<string>(value);
 
@@ -381,14 +413,16 @@ public class CustomerService : ICustomerService
             if (string.IsNullOrWhiteSpace(valueStr))
             {
                 //delete
-                await _customerRepository.PullFilter(customer.Id, x => x.UserFields,y => y.Key == prop.Key && y.StoreId == storeId);
+                await _customerRepository.PullFilter(customer.Id, x => x.UserFields,
+                    y => y.Key == prop.Key && y.StoreId == storeId);
                 customer.UserFields.Remove(prop);
             }
             else
             {
                 //update
                 prop.Value = valueStr;
-                await _customerRepository.UpdateToSet(customer.Id, x => x.UserFields,y => y.Key == prop.Key && y.StoreId == storeId, prop);
+                await _customerRepository.UpdateToSet(customer.Id, x => x.UserFields,
+                    y => y.Key == prop.Key && y.StoreId == storeId, prop);
             }
         }
         else
@@ -552,8 +586,10 @@ public class CustomerService : ICustomerService
         //clear selected shipping method
         if (clearShipping)
         {
-            await UpdateUserField<ShippingOption>(customer, SystemCustomerFieldNames.SelectedShippingOption, null, storeId);
-            await UpdateUserField<ShippingOption>(customer, SystemCustomerFieldNames.OfferedShippingOptions, null, storeId);
+            await UpdateUserField<ShippingOption>(customer, SystemCustomerFieldNames.SelectedShippingOption, null,
+                storeId);
+            await UpdateUserField<ShippingOption>(customer, SystemCustomerFieldNames.OfferedShippingOptions, null,
+                storeId);
             await UpdateUserField(customer, SystemCustomerFieldNames.SelectedPickupPoint, "", storeId);
             await UpdateUserField(customer, SystemCustomerFieldNames.ShippingOptionAttributeDescription, "", storeId);
             await UpdateUserField(customer, SystemCustomerFieldNames.ShippingOptionAttribute, "", storeId);

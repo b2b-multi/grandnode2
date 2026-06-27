@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
@@ -18,14 +19,17 @@ public class ApiAuthenticationService : IApiAuthenticationService
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public ApiAuthenticationService(
         ICustomerService customerService,
-        IGroupService groupService, IHttpContextAccessor httpContextAccessor)
+        IGroupService groupService, IHttpContextAccessor httpContextAccessor,
+        IContextAccessor contextAccessor)
     {
         _customerService = customerService;
         _groupService = groupService;
         _httpContextAccessor = httpContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public virtual async Task<Customer> GetAuthenticatedCustomer()
@@ -50,7 +54,7 @@ public class ApiAuthenticationService : IApiAuthenticationService
         //try to get customer by email
         var emailClaim = authenticateResult.Principal.Claims.FirstOrDefault(claim => claim.Type == "Email");
         if (emailClaim != null)
-            customer = await _customerService.GetCustomerByEmail(emailClaim.Value);
+            customer = await _customerService.GetCustomerByEmail(emailClaim.Value, _contextAccessor.StoreContext.CurrentStore);
 
         //whether the found customer is available
         if (customer is not { Active: true } || customer.Deleted || !await _groupService.IsRegistered(customer))
@@ -83,7 +87,7 @@ public class ApiAuthenticationService : IApiAuthenticationService
             if (id != null) customer = await _customerService.GetCustomerByGuid(Guid.Parse(id));
         }
         else
-            customer = await _customerService.GetCustomerByEmail(email);
+            customer = await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore);
 
         return customer;
     }

@@ -375,7 +375,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         var ownerId = string.Empty;
         if (!string.IsNullOrEmpty(model.Owner))
         {
-            var customerOwner = await _customerService.GetCustomerByEmail(model.Owner);
+            var customerOwner = await _customerService.GetCustomerByEmail(model.Owner, _contextAccessor.StoreContext.CurrentStore);
             if (customerOwner != null) ownerId = customerOwner.Id;
         }
 
@@ -510,7 +510,7 @@ public class CustomerViewModelService : ICustomerViewModelService
 
         if (!string.IsNullOrEmpty(model.Owner))
         {
-            var customerOwner = await _customerService.GetCustomerByEmail(model.Owner);
+            var customerOwner = await _customerService.GetCustomerByEmail(model.Owner, _contextAccessor.StoreContext.CurrentStore);
             if (customerOwner != null) customer.OwnerId = customerOwner.Id;
         }
         else

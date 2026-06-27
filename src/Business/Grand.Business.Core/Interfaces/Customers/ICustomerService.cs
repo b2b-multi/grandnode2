@@ -2,6 +2,7 @@ using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 using System.Linq.Expressions;
 
 namespace Grand.Business.Core.Interfaces.Customers;
@@ -107,8 +108,9 @@ public interface ICustomerService
     ///     Get customer by email
     /// </summary>
     /// <param name="email">Email</param>
+    /// <param name="store">Store</param>
     /// <returns>Customer</returns>
-    Task<Customer> GetCustomerByEmail(string email);
+    Task<Customer> GetCustomerByEmail(string email, Store store);
 
     /// <summary>
     ///     Get customer by system group
@@ -121,8 +123,9 @@ public interface ICustomerService
     ///     Get customer by username
     /// </summary>
     /// <param name="username">Username</param>
+    /// <param name="store">Store</param>
     /// <returns>Customer</returns>
-    Task<Customer> GetCustomerByUsername(string username);
+    Task<Customer> GetCustomerByUsername(string username, Store store);
 
     /// <summary>
     ///     Insert a guest customer

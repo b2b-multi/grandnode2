@@ -3,6 +3,7 @@ using Grand.Module.Api.Models.Common;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Common;
@@ -13,7 +14,8 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
         IEnumerable<IValidatorConsumer<LoginWebModel>> validators,
         FrontendAPIConfig apiConfig,
         ICustomerService customerService,
-        ICustomerManagerService customerManagerService)
+        ICustomerManagerService customerManagerService,
+        IContextAccessor contextAccessor)
         : base(validators)
     {
         if (!apiConfig.Enabled)
@@ -28,7 +30,7 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
             {
                 if (!string.IsNullOrEmpty(x.Email))
                 {
-                    var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant());
+                    var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant(), contextAccessor.StoreContext.CurrentStore);
                     if (customer is { Active: true } && !customer.IsSystemAccount())
                     {
                         var base64EncodedBytes = Convert.FromBase64String(x.Password);

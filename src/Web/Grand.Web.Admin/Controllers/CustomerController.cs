@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Messages;
@@ -50,7 +51,8 @@ public class CustomerController : BaseAdminController
         IAddressAttributeService addressAttributeService,
         IMessageProviderService messageProviderService,
         IPermissionService permissionService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        IStoreService storeService)
     {
         _customerService = customerService;
         _productReviewService = productReviewService;
@@ -69,6 +71,7 @@ public class CustomerController : BaseAdminController
         _messageProviderService = messageProviderService;
         _permissionService = permissionService;
         _customerSettings = customerSettings;
+        _storeService = storeService;
     }
 
     #endregion
@@ -201,6 +204,7 @@ public class CustomerController : BaseAdminController
     private readonly IMessageProviderService _messageProviderService;
     private readonly IPermissionService _permissionService;
     private readonly CustomerSettings _customerSettings;
+    private readonly IStoreService _storeService;
 
     #endregion
 
@@ -254,13 +258,14 @@ public class CustomerController : BaseAdminController
         {
             model.Attributes = await ParseCustomCustomerAttributes(model.SelectedAttributes);
             var customer = await _customerViewModelService.InsertCustomerModel(model);
+            var store = await _storeService.GetStoreById(customer.StoreId);
 
             //password
-            if (!string.IsNullOrWhiteSpace(model.Password))
+            if (!string.IsNullOrWhiteSpace(model.Password) && store != null)
             {
                 var changePassRequest = new ChangePasswordRequest(model.Email, _customerSettings.DefaultPasswordFormat,
                     model.Password);
-                await _customerManagerService.ChangePassword(changePassRequest);
+                await _customerManagerService.ChangePassword(changePassRequest, store);
             }
 
             Success(_translationService.GetResource("Admin.Customers.Customers.Added"));
@@ -303,12 +308,13 @@ public class CustomerController : BaseAdminController
             {
                 model.Attributes = await ParseCustomCustomerAttributes(model.SelectedAttributes);
                 customer = await _customerViewModelService.UpdateCustomerModel(customer, model);
+                var store = await _storeService.GetStoreById(customer.StoreId);
                 //change password
                 if (!string.IsNullOrWhiteSpace(model.Password))
                 {
                     var changePassRequest = new ChangePasswordRequest(model.Email,
                         _customerSettings.DefaultPasswordFormat, model.Password);
-                    await _customerManagerService.ChangePassword(changePassRequest);
+                    await _customerManagerService.ChangePassword(changePassRequest, store);
                 }
 
                 Success(_translationService.GetResource("Admin.Customers.Customers.Updated"));

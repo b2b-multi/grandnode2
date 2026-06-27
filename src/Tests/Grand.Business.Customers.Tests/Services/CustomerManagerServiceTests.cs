@@ -53,7 +53,7 @@ public class CustomerManagerServiceTests
             .Returns(() => Task.FromResult(customer));
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
         //Act
-        var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456");
+        var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456", new Store { Id = "" });
         //Assert
         Assert.AreEqual(CustomerLoginResults.WrongPassword, result);
     }
@@ -67,7 +67,7 @@ public class CustomerManagerServiceTests
             .Returns(() => Task.FromResult(customer));
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
         //Act
-        var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456");
+        var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456", new Store { Id = "" });
         //Assert
         Assert.AreEqual(CustomerLoginResults.Successful, result);
     }
@@ -84,7 +84,7 @@ public class CustomerManagerServiceTests
             PasswordFormat.Clear,
             "zxcvbn", "123456");
         //Act
-        await _customerManagerService.ChangePassword(changepassword);
+        await _customerManagerService.ChangePassword(changepassword, new Store { Id = "" });
         //Assert
         var passwordMatch = _customerManagerService.PasswordMatch(PasswordFormat.Clear, "zxcvb", "zxcvb", string.Empty);
         Assert.IsTrue(passwordMatch);

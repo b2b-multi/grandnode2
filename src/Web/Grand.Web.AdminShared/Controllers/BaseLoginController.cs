@@ -69,7 +69,7 @@ public abstract class BaseLoginController : BaseController
         {
             var loginResult =
                 await _customerManagerService.LoginCustomer(
-                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
+                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password, _contextAccessor.StoreContext.CurrentStore);
             switch (loginResult)
             {
                 case CustomerLoginResults.Successful:

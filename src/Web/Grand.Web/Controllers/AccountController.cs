@@ -192,7 +192,7 @@ public class AccountController : BasePublicController
         {
             var loginResult =
                 await _customerManagerService.LoginCustomer(
-                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
+                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password, _contextAccessor.StoreContext.CurrentStore);
             switch (loginResult)
             {
                 case CustomerLoginResults.Successful:
@@ -399,7 +399,7 @@ public class AccountController : BasePublicController
         var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore);
 
         await _customerManagerService.ChangePassword(new ChangePasswordRequest(model.Email,
-            _customerSettings.DefaultPasswordFormat, model.NewPassword));
+            _customerSettings.DefaultPasswordFormat, model.NewPassword), _contextAccessor.StoreContext.CurrentStore);
 
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
 
@@ -927,7 +927,7 @@ public class AccountController : BasePublicController
         var changePasswordRequest = new ChangePasswordRequest(_contextAccessor.WorkContext.CurrentCustomer.Email,
             _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
 
-        await _customerManagerService.ChangePassword(changePasswordRequest);
+        await _customerManagerService.ChangePassword(changePasswordRequest, _contextAccessor.StoreContext.CurrentStore);
         var customer = await _customerService.GetCustomerById(_contextAccessor.WorkContext.CurrentCustomer.Id);
 
         //sign in

@@ -38,7 +38,7 @@ public class SubAccountEditCommandHandler : IRequestHandler<SubAccountEditComman
         if (!string.IsNullOrEmpty(request.EditModel.Password))
             await _customerManagerService.ChangePassword(
                 new ChangePasswordRequest(customer.Email, _customerSettings.DefaultPasswordFormat,
-                    request.EditModel.Password));
+                    request.EditModel.Password), request.Store);
 
         //update active
         customer.Active = request.EditModel.Active;

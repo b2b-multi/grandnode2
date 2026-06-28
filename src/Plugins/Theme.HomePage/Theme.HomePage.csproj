@@ -44,6 +44,9 @@
         </ProjectReference>
     </ItemGroup>
     <ItemGroup>
+        <Folder Include="Views\" />
+    </ItemGroup>
+    <ItemGroup>
         <None Update="Content\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -51,8 +54,9 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-    <ItemGroup>
-      <AdditionalFiles Include="Views\THomePage\Shared\_MyLayout.cshtml" />
-    </ItemGroup>
 
+    <Target Name="Tailwind" BeforeTargets="CopyFilesToOutputDirectory">
+        <Exec Command="npm run build" EnvironmentVariables="PATH=/home/nayeem/.nvm/versions/node/v24.16.0/bin:$(PATH)" />
+        <Copy SourceFiles="$(MSBuildProjectDirectory)/Content/css/tailwind.css" DestinationFiles="$(TargetDir)Content/css/tailwind.css" SkipUnchangedFiles="false" />
+    </Target>
 </Project>

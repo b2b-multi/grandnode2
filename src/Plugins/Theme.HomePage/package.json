@@ -1,0 +1,15 @@
+{
+  "name": "theme.homepage",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "scripts": {
+    "build": "tailwindcss -i ./Content/css/source.css -o ./Content/css/tailwind.css",
+    "watch": "tailwindcss -i ./Content/css/source.css -o ./Content/css/tailwind.css --watch"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.1",
+    "tailwindcss": "^4.3.1"
+  }
+}

@@ -159,6 +159,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{8D626EA8-C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{03997797-E7F5-0643-168D-B8EA7178C2FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Theme.HomePage", "src\Plugins\Theme.HomePage\Theme.HomePage.csproj", "{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -913,6 +915,18 @@ Global
 		{5819B37B-4972-4BBC-B51C-57B0028EF869}.Release|x64.Build.0 = Release|Any CPU
 		{5819B37B-4972-4BBC-B51C-57B0028EF869}.Release|x86.ActiveCfg = Release|Any CPU
 		{5819B37B-4972-4BBC-B51C-57B0028EF869}.Release|x86.Build.0 = Release|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Debug|x64.Build.0 = Debug|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Debug|x86.Build.0 = Debug|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Release|x64.ActiveCfg = Release|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Release|x64.Build.0 = Release|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Release|x86.ActiveCfg = Release|Any CPU
+		{AF3AB342-F7F2-40E1-B03F-F10F7E007B25}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

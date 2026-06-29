@@ -47,6 +47,8 @@ public class AuthenticationStartup : IStartupApplication
         application.UseMiddleware<ContextMiddleware>();
         //set culture
         application.UseMiddleware<CultureSettingMiddleware>();
+        //admin store ignore
+        application.UseMiddleware<CustomerAndStoreRouteRestrictionMiddleware>();
     }
 
     /// <summary>

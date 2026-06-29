@@ -39,4 +39,9 @@ public class AppConfig
     ///     Gets or sets the value to enable a middleware for logging additional information about CurrentCustomer and store
     /// </summary>
     public bool EnableContextLoggingMiddleware { get; set; }
+
+    /// <summary>
+    ///     Gets Hosts of stores that are restricted to access store and customer routes
+    /// </summary>
+    public IList<string> CustomerAndStoreRoutesRestrictedHosts { get; set; } = [];
 }

@@ -529,6 +529,26 @@ public class AccountController : BasePublicController
         return View(model);
     }
 
+    [HttpGet]
+    [PublicStore(true)]
+    public virtual IActionResult RegisterStore()
+    {
+        return View(new RegisterModel());
+    }
+
+    [HttpPost]
+    [AutoValidateAntiforgeryToken]
+    [PublicStore(true)]
+    public virtual IActionResult RegisterStore(RegisterModel model, string returnUrl)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
+    }
+
     //available even when navigation is not allowed
     [PublicStore(true)]
     [IgnoreApi]

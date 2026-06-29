@@ -36,7 +36,7 @@
 ## Typography
 
 | Style | Font | Weight | Desktop | Mobile | Line Ht | Tailwind Classes |
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|---|
 | H1 (Hero) | Plus Jakarta Sans | 800 | 56px | 36px | 1.1 | `font-heading font-extrabold text-[36px] lg:text-[56px] leading-[1.1]` |
 | H2 (Section) | Plus Jakarta Sans | 700 | 36px | 28px | 1.2 | `font-heading font-bold text-[28px] lg:text-[36px] leading-[1.2]` |
 | H3 (Card) | Plus Jakarta Sans | 600 | 22px | 18px | 1.3 | `font-heading font-semibold text-[18px] lg:text-[22px] leading-[1.3]` |

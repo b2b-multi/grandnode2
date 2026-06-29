@@ -54,6 +54,14 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
+    <ItemGroup>
+      <AdditionalFiles Include="Views\THomePage\Common\AccessDenied.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\ExternalAuthenticationError.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\PageNotFound.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\PrivacyPreference.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\Sitemap.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\StoreClosed.cshtml" />
+    </ItemGroup>
 
     <Target Name="Tailwind" BeforeTargets="CopyFilesToOutputDirectory">
         <Exec Command="npm run build" EnvironmentVariables="PATH=/home/nayeem/.nvm/versions/node/v24.16.0/bin:$(PATH)" />

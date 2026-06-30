@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Customers;
@@ -10,13 +11,14 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Attributes;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
@@ -24,6 +26,7 @@ using Grand.Web.Models.Common;
 using Grand.Web.Models.Customer;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StoreModel = Grand.Web.AdminShared.Models.Stores.StoreModel;
 
 namespace Grand.Web.Controllers;
 
@@ -44,7 +47,11 @@ public class AccountController : BasePublicController
         IMediator mediator,
         IMessageProviderService messageProviderService,
         CaptchaSettings captchaSettings,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        IStoreViewModelService storeViewModelService,
+        ILanguageService languageService,
+        AppConfig appConfig
+        )
     {
         _authenticationService = authenticationService;
         _translationService = translationService;
@@ -56,6 +63,9 @@ public class AccountController : BasePublicController
         _countryService = countryService;
         _messageProviderService = messageProviderService;
         _captchaSettings = captchaSettings;
+        _storeViewModelService = storeViewModelService;
+        _languageService = languageService;
+        _appConfig = appConfig;
         _mediator = mediator;
     }
 
@@ -161,6 +171,10 @@ public class AccountController : BasePublicController
     private readonly IMessageProviderService _messageProviderService;
     private readonly CustomerSettings _customerSettings;
     private readonly CaptchaSettings _captchaSettings;
+    private readonly IStoreViewModelService _storeViewModelService;
+    private readonly ILanguageService _languageService;
+    private readonly AppConfig _appConfig;
+    
 
     #endregion
 
@@ -533,17 +547,100 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     public virtual IActionResult RegisterStore()
     {
-        return View(new RegisterModel());
+        return View(new RegisterStoreModel());
+    }
+
+    protected virtual async Task<StoreModel> PrepareStoreModel()
+    {
+        var model = _storeViewModelService.PrepareStoreModel();
+        await AddLocales(_languageService, model.Locales);
+        await _storeViewModelService.PrepareLanguagesModel(model);
+        await _storeViewModelService.PrepareWarehouseModel(model);
+        await _storeViewModelService.PrepareCountryModel(model);
+        await _storeViewModelService.PrepareCurrencyModel(model);
+        
+        model.Name = $"Boutics-{Guid.NewGuid().ToString("N")[..8]}"; 
+        model.Shortcut = $"Boutics-{Guid.NewGuid().ToString("N")[..8]}";
+
+        return model;
     }
 
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [PublicStore(true)]
-    public virtual IActionResult RegisterStore(RegisterModel model, string returnUrl)
+    public virtual async Task<IActionResult> RegisterStore(RegisterStoreModel model)
     {
         if (!ModelState.IsValid)
         {
             return View(model);
+        }
+
+        var isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
+
+        
+        //create new store for the user
+        var storeVm = await PrepareStoreModel();
+        storeVm.Url = "http://tld.com";
+        var store = await _storeViewModelService.InsertStoreModel(storeVm);
+        storeVm.Url = $"http://{_appConfig.DefaultNewStoreHost}".Replace("--", $"{store.Id}");
+        await _storeViewModelService.UpdateStoreModel(store, storeVm);
+
+        var customer = new Customer() {
+            IsStoreAccount = true,
+            StaffStoreId = store.Id
+        };
+        customer.Groups.Add((await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id);
+        customer.Groups.Add((await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.StoreManager)).Id);
+        var registrationRequest = new RegistrationRequest(customer, model.Email,
+            model.Email, model.Password, _customerSettings.DefaultPasswordFormat,
+            store.Id, isApproved);
+        
+        await _customerService.InsertCustomer(registrationRequest.Customer);
+        await _customerManagerService.RegisterCustomer(registrationRequest);
+        await _mediator.Send(new CustomerStoreRegisteredCommand {
+            Customer = customer,
+            Model = model,
+            Store = store
+        });
+
+        
+        //raise event       
+        // await _mediator.Publish(new CustomerRegisteredEvent(_contextAccessor.WorkContext.CurrentCustomer));
+
+        switch (_customerSettings.UserRegistrationType)
+        {
+            case UserRegistrationType.EmailValidation:
+            {
+                //email validation message
+                await _customerService.UpdateUserField(_contextAccessor.WorkContext.CurrentCustomer,
+                    SystemCustomerFieldNames.AccountActivationToken, Guid.NewGuid().ToString());
+                await _messageProviderService.SendCustomerEmailValidationMessage(
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                    _contextAccessor.WorkContext.WorkingLanguage.Id);
+
+                //result
+                return RedirectToRoute("RegisterResult",
+                    new { resultId = (int)UserRegistrationType.EmailValidation });
+            }
+            case UserRegistrationType.AdminApproval:
+            {
+                return RedirectToRoute("RegisterResult",
+                    new { resultId = (int)UserRegistrationType.AdminApproval });
+            }
+            case UserRegistrationType.Standard:
+            {
+                //send customer welcome message
+                await _messageProviderService.SendCustomerWelcomeMessage(
+                    _contextAccessor.WorkContext.CurrentCustomer,
+                    _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage.Id);
+
+                var returnUrl = $"{storeVm.Url}/store/login";
+                return Redirect(returnUrl);
+            }
+            default:
+            {
+                return RedirectToRoute("HomePage");
+            }
         }
 
         return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });

@@ -60,7 +60,7 @@ public abstract class BaseLoginController : BaseController
         };
         return View(model);
     }
-
+    
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     public virtual async Task<IActionResult> Index(LoginModel model)

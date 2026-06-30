@@ -44,4 +44,9 @@ public class AppConfig
     ///     Gets Hosts of stores that are restricted to access store and customer routes
     /// </summary>
     public IList<string> CustomerAndStoreRoutesRestrictedHosts { get; set; } = [];
+    
+    /// <summary>
+    ///     Default Host when new store will be registred
+    /// </summary>
+    public string DefaultNewStoreHost { get; set; }
 }

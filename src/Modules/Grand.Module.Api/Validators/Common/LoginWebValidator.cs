@@ -35,7 +35,7 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
                     {
                         var base64EncodedBytes = Convert.FromBase64String(x.Password);
                         var password = Encoding.UTF8.GetString(base64EncodedBytes);
-                        var result = await customerManagerService.LoginCustomer(x.Email, password);
+                        var result = await customerManagerService.LoginCustomer(x.Email, password, contextAccessor.StoreContext.CurrentStore);
                         return result == CustomerLoginResults.Successful;
                     }
                 }

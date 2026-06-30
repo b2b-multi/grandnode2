@@ -1,3 +1,4 @@
+@model RegisterStoreModel
 @{
     ViewData["Title"] = "Create your free account";
 }
@@ -50,20 +51,23 @@
                 <h2 class="font-heading font-bold text-[28px] leading-[1.2] text-slate-900">Create your free account</h2>
                 <p class="mt-2 font-sans text-[15px] lg:text-[16px] leading-[1.6] text-slate-500">Join Cartivo and start selling in minutes.</p>
 
-                <form action="/register-store" method="post" class="mt-8 space-y-6" novalidate>
+                <form asp-controller="Account" asp-action="RegisterStore" method="post" class="mt-8 space-y-6" novalidate>
                     <div>
-                        <label for="Email" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Email or Username</label>
-                        <input type="email" id="Email" name="Email" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="you@example.com" autocomplete="email" inputmode="email" />
+                        <label asp-for="Email" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Email or Username</label>
+                        <input asp-for="Email" type="email" id="Email" name="Email" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="you@example.com" autocomplete="email" inputmode="email" />
+                        <span asp-validation-for="Email" class="text-red-600"></span>
                     </div>
 
                     <div>
-                        <label for="Password" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Password</label>
-                        <input type="password" id="Password" name="Password" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="Create a strong password" autocomplete="new-password" />
+                        <label asp-for="Password" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Password</label>
+                        <input asp-for="Password" type="password" id="Password" name="Password" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="Create a strong password" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-red-600"></span>
                     </div>
 
                     <div>
-                        <label for="ConfirmPassword" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Confirm Password</label>
-                        <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="Repeat your password" autocomplete="new-password" />
+                        <label asp-for="ConfirmPassword" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Confirm Password</label>
+                        <input asp-for="ConfirmPassword" type="password" id="ConfirmPassword" name="ConfirmPassword" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="Repeat your password" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-red-600"></span>
                     </div>
 
                     <button type="submit" class="font-heading font-semibold text-[16px] leading-[1.0] w-full bg-[#FF5A5F] hover:bg-[#E04347] text-white px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">

@@ -111,6 +111,13 @@ public interface ICustomerService
     /// <param name="store">Store</param>
     /// <returns>Customer</returns>
     Task<Customer> GetCustomerByEmail(string email, Store store);
+    
+    /// <summary>
+    ///     Get store account
+    /// </summary>
+    /// <param name="email">Email</param>
+    /// <returns>Customer</returns>
+    Task<Customer> GetStoreAccountByEmail(string email);
 
     /// <summary>
     ///     Get customer by system group

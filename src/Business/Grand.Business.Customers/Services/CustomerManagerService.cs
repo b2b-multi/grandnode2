@@ -93,6 +93,18 @@ public class CustomerManagerService : ICustomerManagerService
         return ProcessCustomerLogin(customer, password);
     }
 
+
+    /// <summary>
+    ///     Validate customer
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="password">Password</param>
+    /// <returns>Result</returns>
+    public virtual async Task<CustomerLoginResults> LoginCustomer(Customer customer, string password)
+    {
+        return ProcessCustomerLogin(customer, password);
+    }
+
     /// <summary>
     ///     Validate customer
     /// </summary>

@@ -20,6 +20,7 @@ public class CustomerAndStoreRouteRestrictionMiddleware
         new Regex("^/admin(/.*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase),
         new Regex("^/install/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase),
         new Regex("^/register-store/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+        new Regex("^/login-store/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase),
         new Regex("^/page-not-found/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase),
         new Regex("^/access-denied/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase),
         new Regex("^/storeclosed/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase),

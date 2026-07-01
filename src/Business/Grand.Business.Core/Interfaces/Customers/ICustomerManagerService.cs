@@ -19,6 +19,14 @@ public interface ICustomerManagerService
     Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, Store store);
 
     /// <summary>
+    ///     Login Customer
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="password">Password</param>
+    /// <returns>Result</returns>
+    Task<CustomerLoginResults> LoginCustomer(Customer customer, string password);
+
+    /// <summary>
     ///     Register customer
     /// </summary>
     /// <param name="request">Request</param>

@@ -50,6 +50,8 @@ public class AccountController : BasePublicController
         CustomerSettings customerSettings,
         IStoreViewModelService storeViewModelService,
         ILanguageService languageService,
+        IStoreService storeService,
+        IStoreLoginTokenService storeLoginTokenService,
         AppConfig appConfig
         )
     {
@@ -65,6 +67,8 @@ public class AccountController : BasePublicController
         _captchaSettings = captchaSettings;
         _storeViewModelService = storeViewModelService;
         _languageService = languageService;
+        _storeService = storeService;
+        _storeLoginTokenService = storeLoginTokenService;
         _appConfig = appConfig;
         _mediator = mediator;
     }
@@ -173,6 +177,8 @@ public class AccountController : BasePublicController
     private readonly CaptchaSettings _captchaSettings;
     private readonly IStoreViewModelService _storeViewModelService;
     private readonly ILanguageService _languageService;
+    private readonly IStoreService _storeService;
+    private readonly IStoreLoginTokenService _storeLoginTokenService;
     private readonly AppConfig _appConfig;
     
 
@@ -232,6 +238,58 @@ public class AccountController : BasePublicController
 
         return View(model);
     }
+    
+    
+    //available even when navigation is not allowed
+    [PublicStore(true)]
+    [ClosedStore(true)]
+    [IgnoreApi]
+    public virtual IActionResult LoginStore()
+    {
+        return View(new LoginStoreModel());
+    }
+
+    [HttpPost]
+    //available even when navigation is not allowed
+    [PublicStore(true)]
+    [ClosedStore(true)]
+    [AutoValidateAntiforgeryToken]
+    [IgnoreApi]
+    public virtual async Task<IActionResult> LoginStore(LoginStoreModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var customer = await _customerService.GetStoreAccountByEmail(model.Email);
+            var loginResult = await _customerManagerService.LoginCustomer(customer, model.Password);
+            switch (loginResult)
+            {
+                case CustomerLoginResults.Successful:
+                {
+                    var store = await _storeService.GetStoreById(customer.StoreId);
+                    if (store != null)
+                    {
+                        var loginToken = new StoreLoginToken {
+                            TargetCustomer = customer,
+                            StoreId = store.Id,
+                        };
+                        await _storeLoginTokenService.InsertAsync(loginToken);
+                        var url = Url.ActionLink(action: "ByToken", controller: "Login", host: $"{store.Domains.First().HostName}:8080", values: new {
+                            Area = "Store",
+                            Token = loginToken.Token,
+                        });
+
+                        return Redirect(url);
+                    }
+
+                    ModelState.AddModelError(string.Empty, "Store not found for the customer");
+                    break;
+                }
+            }
+        }
+        
+        return View(model);
+    }
+
 
     [IgnoreApi]
     public async Task<IActionResult> TwoFactorAuthorization()

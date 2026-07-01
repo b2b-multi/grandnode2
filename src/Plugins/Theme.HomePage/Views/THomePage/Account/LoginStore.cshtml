@@ -1,6 +1,6 @@
 @model LoginStoreModel
 @{
-    ViewData["Title"] = "Create your free account";
+    ViewData["Title"] = "Sign in to your store";
 }
 
 <div class="flex min-h-screen w-full flex-col lg:flex-row">
@@ -15,21 +15,21 @@
                  class="w-full max-w-[280px] mx-auto mt-8 lg:mt-0" />
 
             <h2 class="font-heading font-bold text-[28px] lg:text-[36px] leading-[1.2] text-white mt-8">
-                You are 60 seconds away from launching your empire.
+                Welcome back to your store.
             </h2>
 
             <div class="mt-10 space-y-6">
                 <div class="flex items-start gap-4">
                     <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold">✓</span>
-                    <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90">Includes your custom domain connection.</p>
+                    <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90">Manage orders, products, and customers.</p>
                 </div>
                 <div class="flex items-start gap-4">
                     <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold">✓</span>
-                    <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90">Full access to all 100+ premium themes.</p>
+                    <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90">Track your sales and analytics in real time.</p>
                 </div>
                 <div class="flex items-start gap-4">
                     <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold">✓</span>
-                    <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90">No credit card required to start.</p>
+                    <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90">Update your themes and content instantly.</p>
                 </div>
             </div>
 
@@ -37,8 +37,8 @@
                 <div class="flex items-start gap-4">
                     <span class="text-[#FF5A5F] text-lg leading-none">★★★★★</span>
                     <div>
-                        <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90 italic">"I had my storefront up before my coffee finished brewing."</p>
-                        <p class="font-sans text-[13px] text-white/60 mt-1">— Sarah K.</p>
+                        <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90 italic">"Managing my store from anywhere has never been easier."</p>
+                        <p class="font-sans text-[13px] text-white/60 mt-1">— Marcus J.</p>
                     </div>
                 </div>
             </div>
@@ -48,8 +48,8 @@
     <div class="flex items-center justify-center bg-slate-50 w-full lg:w-[60%] px-6 py-16 lg:px-16">
         <div class="w-full max-w-lg">
             <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 sm:p-10">
-                <h2 class="font-heading font-bold text-[28px] leading-[1.2] text-slate-900">Create your free account</h2>
-                <p class="mt-2 font-sans text-[15px] lg:text-[16px] leading-[1.6] text-slate-500">Join Cartivo and start selling in minutes.</p>
+                <h2 class="font-heading font-bold text-[28px] leading-[1.2] text-slate-900">Sign in to your store</h2>
+                <p class="mt-2 font-sans text-[15px] lg:text-[16px] leading-[1.6] text-slate-500">Access your store dashboard and manage your business.</p>
 
                 <form asp-controller="Account" asp-action="LoginStore" method="post" class="mt-8 space-y-6" novalidate>
                     <div>
@@ -60,18 +60,16 @@
 
                     <div>
                         <label asp-for="Password" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Password</label>
-                        <input asp-for="Password" type="password" id="Password" name="Password" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="Create a strong password" autocomplete="new-password" />
+                        <input asp-for="Password" type="password" id="Password" name="Password" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="Enter your password" autocomplete="current-password" />
                         <span asp-validation-for="Password" class="text-red-600"></span>
                     </div>
 
                     <button type="submit" class="font-heading font-semibold text-[16px] leading-[1.0] w-full bg-[#FF5A5F] hover:bg-[#E04347] text-white px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">
-                        LogIn My Store →
+                        Sign In →
                     </button>
 
-                    <p class="text-center font-sans text-[12px] lg:text-[13px] leading-[1.4] text-slate-400">No credit card required. Setup takes less than a minute.</p>
-
                     <div class="text-center border-t border-slate-100 pt-6">
-                        <p class="font-sans text-[13px] text-slate-500">Don't have an account? <a asp-controller="Account" asp-action="RegisterStore" class="text-indigo-600 font-semibold hover:underline">Register</a></p>
+                        <p class="font-sans text-[13px] text-slate-500">Don't have an account? <a asp-controller="Account" asp-action="RegisterStore" class="text-indigo-600 font-semibold hover:underline">Create your store</a></p>
                     </div>
                 </form>
             </div>

@@ -233,6 +233,13 @@ public class CustomerService : ICustomerService
             : _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant() && x.StoreId == store.Id);
     }
 
+    public Task<Customer> GetStoreAccountByEmail(string email)
+    {
+        return string.IsNullOrWhiteSpace(email)
+            ? Task.FromResult<Customer>(null)
+            : _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant() && x.IsStoreAccount == true);
+    }
+
     /// <summary>
     ///     Get customer by email
     /// </summary>

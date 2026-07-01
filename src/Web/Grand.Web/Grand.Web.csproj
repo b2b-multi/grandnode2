@@ -43,10 +43,6 @@
 	</Target>
 
 	<ItemGroup>
-		<Content Remove="Plugins\**" />
-		<Compile Remove="Plugins\**" />
-		<EmbeddedResource Remove="Plugins\**" />
-		<None Remove="Plugins\**" />
 		<Content Update="Plugins\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
@@ -59,5 +55,11 @@
 		<Content Update="Modules\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<None Include="Plugins\Theme.HomePage\Content\theme.jpg">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
+    <ItemGroup>
+        <Watch Include="..\..\Plugins\**\*" />
+    </ItemGroup>
 </Project>

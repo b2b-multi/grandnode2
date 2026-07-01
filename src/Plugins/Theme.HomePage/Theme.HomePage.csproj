@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+    <Import Project="..\..\Build\Grand.Common.props" />
+    <PropertyGroup>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+        <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <OutputPath>..\..\Web\Grand.Web\Plugins\Theme.HomePage\</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <OutputPath>..\..\Web\Grand.Web\Plugins\Theme.HomePage\</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.Mapping\Grand.Mapping.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
+            <Private>false</Private>
+            <ExcludeAssets>all</ExcludeAssets>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj">
+            <Private>false</Private>
+            <ExcludeAssets>all</ExcludeAssets>
+        </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Views\" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="Content\**\*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="logo.jpg">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+      <AdditionalFiles Include="Views\THomePage\Common\AccessDenied.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\ExternalAuthenticationError.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\PageNotFound.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\PrivacyPreference.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\Sitemap.cshtml" />
+      <AdditionalFiles Include="Views\THomePage\Common\StoreClosed.cshtml" />
+    </ItemGroup>
+
+    <Target Name="Tailwind" BeforeTargets="CopyFilesToOutputDirectory">
+        <Exec Command="npm run build" EnvironmentVariables="PATH=/home/nayeem/.nvm/versions/node/v24.16.0/bin:$(PATH)" />
+        <Copy SourceFiles="$(MSBuildProjectDirectory)/Content/css/tailwind.css" DestinationFiles="$(TargetDir)Content/css/tailwind.css" SkipUnchangedFiles="false" />
+    </Target>
+</Project>

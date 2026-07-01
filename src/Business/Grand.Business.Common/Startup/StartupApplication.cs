@@ -94,6 +94,7 @@ public class StartupApplication : IStartupApplication
     private static void RegisterStoresService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IStoreService, StoreService>();
+        serviceCollection.AddScoped<IStoreLoginTokenService, StoreLoginTokenService>();
     }
 
     private static void RegisterExportImportService(IServiceCollection serviceCollection)

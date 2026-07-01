@@ -26,6 +26,13 @@ public class DefaultAreaViewFactory : IAreaViewFactory
             .Where(x => x.ThemeName == themeName)
             .SelectMany(x => x.GetViewLocations())
             .ToList();
+        foreach (var tv in _themeFactories)
+        {
+            if (tv.ThemeName == themeName)
+            {
+                var a = tv.GetViewLocations();
+            }
+        }
         return themeViewLocations.Any()
             ? themeViewLocations.Concat(GetDefaultViewLocations())
             : GetDefaultViewLocations();

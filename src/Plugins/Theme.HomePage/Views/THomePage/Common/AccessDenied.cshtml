@@ -1,0 +1,97 @@
+﻿@{
+    Layout = "~/Views/THomePage/Shared/_ErrorLayout.cshtml";
+}
+
+<div class="page-404">
+    <div class="p404-container">
+        <div class="p404-laptop-wrapper">
+            <div class="p404-laptop">
+                <div class="p404-top-bar">
+                    <span class="p404-dot"></span>
+                    <span class="p404-dot"></span>
+                    <span class="p404-dot"></span>
+                    <span class="p404-dot">localhost</span>
+                </div>
+                <div class="p404-screen">
+                    <div class="p404-code-lines">
+                        <div class="p404-code-line"></div>
+                        <div class="p404-code-line"></div>
+                        <div class="p404-code-line"></div>
+                        <div class="p404-code-line"></div>
+                        <div class="p404-code-line"><span></span><span></span></div>
+                        <div class="p404-code-line"></div>
+                        <div class="p404-code-line"><span></span><span></span></div>
+                        <div class="p404-code-line"></div>
+                    </div>
+                    <div class="p404-icon">
+                        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle class="p404-icon-ring" cx="100" cy="100" r="85" stroke="url(#ringGrad)" stroke-width="3" stroke-dasharray="12 8" fill="none" opacity="0.6"/>
+                            <defs>
+                                <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0%" stop-color="#818CF8"/>
+                                    <stop offset="100%" stop-color="#FF5A5F"/>
+                                </linearGradient>
+                                <linearGradient id="iconGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#4F46E5"/>
+                                    <stop offset="100%" stop-color="#FF5A5F"/>
+                                </linearGradient>
+                            </defs>
+                            <g class="p404-icon-broken">
+                                <path d="M85 70 L85 110" stroke="url(#iconGrad)" stroke-width="8" stroke-linecap="round"/>
+                                <path d="M115 70 L115 110" stroke="url(#iconGrad)" stroke-width="8" stroke-linecap="round"/>
+                                <path d="M70 140 L100 90 L130 140" stroke="url(#iconGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M80 135 L95 115 L110 135" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="white" opacity="0.9"/>
+                            </g>
+                            <circle class="p404-icon-spark" cx="55" cy="60" r="4" fill="#FF5A5F">
+                                <animate attributeName="r" values="0;4;0" dur="2s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle class="p404-icon-spark" cx="145" cy="55" r="4" fill="#818CF8">
+                                <animate attributeName="r" values="0;4;0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0;1;0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle class="p404-icon-spark" cx="50" cy="130" r="4" fill="#F59E0B">
+                                <animate attributeName="r" values="0;4;0" dur="2s" begin="1s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0;1;0" dur="2s" begin="1s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle class="p404-icon-spark" cx="155" cy="135" r="4" fill="#10B981">
+                                <animate attributeName="r" values="0;4;0" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0;1;0" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+                            </circle>
+                        </svg>
+                    </div>
+                </div>
+                <div class="p404-laptop-base"></div>
+            </div>
+        </div>
+
+        <div class="p404-content">
+            <div class="p404-code-display">403</div>
+            <h1 class="p404-heading">@Loc["Title.AccessDenied"]</h1>
+            <p class="p404-text">
+                You don't have permission to access this page. Please contact your administrator if you believe this is a mistake.
+            </p>
+            <div class="p404-actions">
+                <a href="~/" class="p404-btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Back to Home
+                </a>
+                <button onclick="window.history.back()" class="p404-btn-secondary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Go Back
+                </button>
+            </div>
+        </div>
+
+        @await Component.InvokeAsync("PageBlock", new { systemName = "AccessDenied" })
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const lines = document.querySelectorAll('.p404-code-line');
+        lines.forEach(function (line, i) {
+            line.style.animationDelay = (i * 0.15) + 's';
+        });
+    });
+</script>

@@ -1,0 +1,92 @@
+@model RegisterStoreModel
+@{
+    ViewData["Title"] = "Create your free account";
+}
+
+<div class="flex min-h-screen w-full flex-col lg:flex-row">
+    <div class="flex flex-col justify-between bg-indigo-600 px-8 py-10 lg:px-12 lg:py-12 w-full lg:w-[40%]">
+        <div>
+            <a href="/" class="font-heading font-bold text-2xl text-white">Cartivo</a>
+        </div>
+
+        <div class="flex-1 flex flex-col justify-center">
+            <img src="/Plugins/Theme.HomePage/Content/images/work-in-progress.svg"
+                 alt="Work in progress"
+                 class="w-full max-w-[280px] mx-auto mt-8 lg:mt-0" />
+
+            <h2 class="font-heading font-bold text-[28px] lg:text-[36px] leading-[1.2] text-white mt-8">
+                You are 60 seconds away from launching your empire.
+            </h2>
+
+            <div class="mt-10 space-y-6">
+                <div class="flex items-start gap-4">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold">✓</span>
+                    <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90">Includes your custom domain connection.</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold">✓</span>
+                    <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90">Full access to all 100+ premium themes.</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold">✓</span>
+                    <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90">No credit card required to start.</p>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t border-white/20 pt-8">
+                <div class="flex items-start gap-4">
+                    <span class="text-[#FF5A5F] text-lg leading-none">★★★★★</span>
+                    <div>
+                        <p class="font-sans text-[15px] lg:text-[16px] leading-[1.6] text-white/90 italic">"I had my storefront up before my coffee finished brewing."</p>
+                        <p class="font-sans text-[13px] text-white/60 mt-1">— Sarah K.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-center bg-slate-50 w-full lg:w-[60%] px-6 py-16 lg:px-16">
+        <div class="w-full max-w-lg">
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 sm:p-10">
+                <h2 class="font-heading font-bold text-[28px] leading-[1.2] text-slate-900">Create your free account</h2>
+                <p class="mt-2 font-sans text-[15px] lg:text-[16px] leading-[1.6] text-slate-500">Join Cartivo and start selling in minutes.</p>
+
+                <form asp-controller="Account" asp-action="RegisterStore" method="post" class="mt-8 space-y-6" novalidate>
+                    <div>
+                        <label asp-for="Email" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Email or Username</label>
+                        <input asp-for="Email" type="email" id="Email" name="Email" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="you@example.com" autocomplete="email" inputmode="email" />
+                        <span asp-validation-for="Email" class="text-red-600"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="Password" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Password</label>
+                        <input asp-for="Password" type="password" id="Password" name="Password" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="Create a strong password" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-red-600"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="ConfirmPassword" class="block font-sans font-medium text-[13px] text-slate-700 mb-1.5">Confirm Password</label>
+                        <input asp-for="ConfirmPassword" type="password" id="ConfirmPassword" name="ConfirmPassword" class="w-full font-sans text-[16px] px-4 py-3 rounded-xl border border-slate-300 bg-white transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="Repeat your password" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-red-600"></span>
+                    </div>
+
+                    <button type="submit" class="font-heading font-semibold text-[16px] leading-[1.0] w-full bg-[#FF5A5F] hover:bg-[#E04347] text-white px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">
+                        Create My Store →
+                    </button>
+
+                    <p class="text-center font-sans text-[12px] lg:text-[13px] leading-[1.4] text-slate-400">No credit card required. Setup takes less than a minute.</p>
+
+                    <div class="text-center border-t border-slate-100 pt-6">
+                        <p class="font-sans text-[13px] text-slate-500">Already have an account? <a asp-controller="Account" asp-action="LoginStore" class="text-indigo-600 font-semibold hover:underline">Sign in</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

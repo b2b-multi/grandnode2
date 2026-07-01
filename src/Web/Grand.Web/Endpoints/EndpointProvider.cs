@@ -73,6 +73,15 @@ public class EndpointProvider : IEndpointProvider
         endpointRouteBuilder.MapControllerRoute("Register",
             $"{pattern}register/",
             new { controller = "Account", action = "Register" });
+        //register store (onboarding)
+        endpointRouteBuilder.MapControllerRoute("RegisterStore",
+            $"{pattern}register-store/",
+            new { controller = "Account", action = "RegisterStore" });
+        
+        //register store (onboarding)
+        endpointRouteBuilder.MapControllerRoute("LoginStore",
+            $"{pattern}login-store/",
+            new { controller = "Account", action = "LoginStore" });
         //logout
         endpointRouteBuilder.MapControllerRoute("Logout",
             $"{pattern}logout/",

@@ -7,6 +7,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
+using MongoDB.Driver.Linq;
 
 namespace Grand.Business.Common.Services.Stores;
 
@@ -128,8 +129,10 @@ public class StoreService : IStoreService
     /// <returns></returns>
     public async Task<Store?> GetStoreByHost(string host)
     {
-        var allStores = await GetAllStores();
-        return allStores.FirstOrDefault(s => s.ContainsHostValue(host));
+        // var allStores = await GetAllStores();
+        // return allStores.FirstOrDefault(s => s.ContainsHostValue(host));
+        return await _storeRepository.Table.Where(s => s.Domains.Any(d => d.HostName == host))
+            .FirstOrDefaultAsync();
     }
 
     #endregion

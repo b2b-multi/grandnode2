@@ -142,11 +142,12 @@ public class WorkContextSetter : IWorkContextSetter
 
     #endregion
 
-    #region Properties
+    #region Methods
 
-    public virtual async Task<IWorkContext> InitializeWorkContext(string storeId = null)
+    public virtual async Task<IWorkContext> InitializeWorkContext(Store currentStore)
     {
-        var currentStore = await CurrentStore(storeId);
+        ArgumentNullException.ThrowIfNull(currentStore);
+        
         var workContext = new CurrentWorkContext {            
             CurrentCustomer = await CurrentCustomer(currentStore)
         };
@@ -272,7 +273,8 @@ public class WorkContextSetter : IWorkContextSetter
             StoreId = store.Id,
             LastActivityDateUtc = DateTime.UtcNow,
             LastIpAddress = _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-            UserFields = userFields
+            UserFields = userFields,
+            IsGuestAccount = true,
         };
 
         customer = await _customerService.InsertGuestCustomer(customer);
@@ -432,15 +434,6 @@ public class WorkContextSetter : IWorkContextSetter
         }
 
         return await Task.FromResult(taxDisplayType);
-    }
-
-
-    protected async Task<Store> CurrentStore(string id = null)
-    {
-        if (!string.IsNullOrEmpty(id))
-            return await _storeService.GetStoreById(id);
-
-        return (await _storeService.GetAllStores()).FirstOrDefault();
     }
 
     private sealed class CurrentWorkContext : IWorkContext

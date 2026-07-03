@@ -122,6 +122,11 @@ public class Customer : BaseEntity
     ///     Gets or sets a value indicating whether the customer account is system
     /// </summary>
     public bool IsStoreAccount { get; set; }
+    
+    /// <summary>
+    ///     Gets or sets a value indicating whether the customer account is for guest
+    /// </summary>
+    public bool IsGuestAccount { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the customer is active by adding comments etc...

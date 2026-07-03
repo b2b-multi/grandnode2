@@ -52,11 +52,21 @@ public class ContextMiddleware
             }
         }
 
-        var storeContext = context.RequestServices.GetRequiredService<IStoreContextSetter>();
-        contextAccessor.StoreContext = await storeContext.InitializeStoreContext();
+        try
+        {
+            var storeContext = context.RequestServices.GetRequiredService<IStoreContextSetter>();
+            contextAccessor.StoreContext = await storeContext.InitializeStoreContext();
+        }
+        catch (Exception e)
+        {
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            context.Response.Redirect("/page-not-found");
+            await _next(context);
+            return;
+        }
 
         var workContextSetter = context.RequestServices.GetRequiredService<IWorkContextSetter>();
-        contextAccessor.WorkContext = await workContextSetter.InitializeWorkContext(contextAccessor.StoreContext.CurrentStore.Id);
+        contextAccessor.WorkContext = await workContextSetter.InitializeWorkContext(contextAccessor.StoreContext.CurrentStore);
 
         //call the next middleware in the request pipeline
         await _next(context);

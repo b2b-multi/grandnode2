@@ -39,6 +39,15 @@ public class StoreContextSetter : IStoreContextSetter
                 return storeById;
         }
 
+        // Attempt to load store by host from request
+        var host = httpContext?.Request.Host.Host;
+        if (!string.IsNullOrEmpty(host))
+        {
+            var storeByHost = await _storeService.GetStoreByHost(host);
+            if (storeByHost != null)
+                return storeByHost;
+        }
+        
         // Attempt to load store by cookie value
         var storeCookie = httpContext?.GetStoreCookie();
         if (!string.IsNullOrEmpty(storeCookie))
@@ -48,17 +57,7 @@ public class StoreContextSetter : IStoreContextSetter
                 return storeByCookie;
         }
 
-        // Attempt to load store by host from request
-        var host = httpContext?.Request.Host.Host;
-        if (!string.IsNullOrEmpty(host))
-        {
-            var storeByHost = await _storeService.GetStoreByHost(host);
-            if (storeByHost != null)
-                return storeByHost;
-        }
-
-        // Fallback: return the first available store
-        return (await _storeService.GetAllStores()).FirstOrDefault();
+        throw new Exception("Proper Host not found");
     }
 
     /// <summary>

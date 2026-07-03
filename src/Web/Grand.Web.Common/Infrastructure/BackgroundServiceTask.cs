@@ -112,6 +112,6 @@ public class BackgroundServiceTask : BackgroundService
         contextAccessor.StoreContext = await storeContext.InitializeStoreContext(scheduleTask.StoreId);
 
         var workContext = serviceProvider.GetRequiredService<IWorkContextSetter>();
-        contextAccessor.WorkContext = await workContext.InitializeWorkContext(scheduleTask.StoreId);
+        contextAccessor.WorkContext = await workContext.InitializeWorkContext(contextAccessor.StoreContext.CurrentStore);
     }
 }
